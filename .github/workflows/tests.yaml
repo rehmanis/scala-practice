@@ -17,3 +17,9 @@ jobs:
         run: |
           cd example
           sbt test
+          cd ../
+      - name: Run Week1 Exercise tests
+        run: |
+          cd recfun
+          sbt test
+          cd ../
