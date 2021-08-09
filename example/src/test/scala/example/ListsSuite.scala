@@ -15,14 +15,15 @@ class ListsSuite extends munit.FunSuite:
    * The most common way to implement a test body is using the method `assert`
    * which tests that its argument evaluates to `true`. So one of the simplest
    * successful tests is the following:
-   */
-  test("one plus one is two (0pts)") {
-    assert(1 + 1 == 2)
-  }
+   * 
+    test("one plus one is two (0pts)") {
+      assert(1 + 1 == 2)
+    }
 
-  test("one plus one is three (0pts)?") {
-    assert(1 + 1 == 3) // This assertion fails! Go ahead and fix it.
-  }
+    test("one plus one is three (0pts)?") {
+      assert(1 + 1 == 3) // This assertion fails! Go ahead and fix it.
+    }
+   */
 
   /**
    * One problem with the previous (failing) test is that munit will
@@ -55,10 +56,12 @@ class ListsSuite extends munit.FunSuite:
    *
    * We recommend to always use the assertEquals equality operator
    * when writing tests.
+   * 
+      test("details why one plus one is not three (0pts)") {
+        assertEquals(1 + 1, 3) // Fix me, please!
+      }
    */
-  test("details why one plus one is not three (0pts)") {
-    assertEquals(1 + 1, 3) // Fix me, please!
-  }
+
 
   /**
    * Exceptional behavior of a methods can be tested using a try/catch
@@ -66,18 +69,19 @@ class ListsSuite extends munit.FunSuite:
    *
    * In the following example, we test the fact that the method `intNotZero`
    * throws an `IllegalArgumentException` if its argument is `0`.
-   */
-   test("intNotZero throws an exception if its argument is 0") {
-     try
-       intNotZero(0)
-       fail("No exception has been thrown")
-     catch
-       case e: IllegalArgumentException => ()
-   }
+   * 
+    test("intNotZero throws an exception if its argument is 0") {
+      try
+        intNotZero(0)
+        fail("No exception has been thrown")
+      catch
+        case e: IllegalArgumentException => ()
+    }
 
    def intNotZero(x: Int): Int =
      if x == 0 then throw IllegalArgumentException("zero is not allowed")
      else x
+   */
 
   /**
    * Now we finally write some tests for the list functions that have to be
@@ -98,15 +102,53 @@ class ListsSuite extends munit.FunSuite:
    * however it is recommended to write an individual `test` statement for
    * every tested aspect of a method.
    */
-  test("sum of a few numbers (10pts)") {
-    assert(sum(List(1,2,0)) == 3)
+  test("sum of a few numbers") {
+    assertEquals(sum(List(1,2,0)), 3)
   }
 
-  test("max of a few numbers (10pts)") {
-    assert(max(List(3, 7, 2)) == 7)
+  test("sum single element") {
+    assertEquals(sum(List(1)), 1)
   }
 
+  test("sum of repeated elements") {
+    assertEquals(sum(List(3,3,3,3)), 12)
+  }
 
+  test("sum of zeros") {
+    assertEquals(sum(List(0,0,0)), 0)
+  }
+
+  test("sum of both negative and positive numbers") {
+    assertEquals(sum(List(-1,-2,3,2,0,1)), 3)
+  }
+
+  test("max of all positive numbers") {
+    assertEquals(max(List(3, 7, 2)), 7)
+  }
+
+  test("max of empty list") {
+    try
+      max(List())
+      fail("No exception has been thrown")
+    catch
+      case e: NoSuchElementException => ()
+  }
+
+  test("max of single element") {
+    assertEquals(max(List(1)), 1)
+  }
+
+  test("max of all zeros") {
+    assertEquals(max(List(0,0,0)), 0)
+  }
+
+  test("max of all negative") {
+    assertEquals(max(List(-3,-1,-9,-2)), -1)
+  }
+
+  test("max of negative, positive and zero") {
+    assertEquals(max(List(0, 1, 10, -1, -2, 7)), 10)
+  }
 
   import scala.concurrent.duration.*
   override val munitTimeout = 1.seconds
