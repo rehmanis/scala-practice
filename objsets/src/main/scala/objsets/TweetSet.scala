@@ -1,6 +1,7 @@
 package objsets
 
 import TweetReader.*
+import java.{util => ju}
 
 /**
  * A class to represent tweets.
@@ -37,23 +38,23 @@ abstract class TweetSet extends TweetSetInterface:
    * This method takes a predicate and returns a subset of all the elements
    * in the original set for which the predicate is true.
    *
-   * Question: Can we implment this method here, or should it remain abstract
+   * Question: Can we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def filter(p: Tweet => Boolean): TweetSet = ???
+  def filter(p: Tweet => Boolean): TweetSet = filterAcc(p, Empty())
 
   /**
-   * This is a helper method for `filter` that propagetes the accumulated tweets.
+   * This is a helper method for `filter` that propagates the accumulated tweets.
    */
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet
 
   /**
    * Returns a new `TweetSet` that is the union of `TweetSet`s `this` and `that`.
    *
-   * Question: Should we implment this method here, or should it remain abstract
+   * Question: Should we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def union(that: TweetSet): TweetSet = ???
+  def union(that: TweetSet): TweetSet
 
   /**
    * Returns the tweet from this set which has the greatest retweet count.
@@ -61,10 +62,12 @@ abstract class TweetSet extends TweetSetInterface:
    * Calling `mostRetweeted` on an empty set should throw an exception of
    * type `java.util.NoSuchElementException`.
    *
-   * Question: Should we implment this method here, or should it remain abstract
+   * Question: Should we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def mostRetweeted: Tweet = ???
+  def mostRetweeted: Tweet
+
+  def mostRetweetedAcc(max: Tweet): Tweet
 
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
@@ -75,7 +78,7 @@ abstract class TweetSet extends TweetSetInterface:
    * Question: Should we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def descendingByRetweet: TweetList = ???
+  def descendingByRetweet: TweetList
 
   /**
    * The following methods are already implemented
@@ -105,7 +108,15 @@ abstract class TweetSet extends TweetSetInterface:
   def foreach(f: Tweet => Unit): Unit
 
 class Empty extends TweetSet:
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
+
+  def union(that: TweetSet): TweetSet = that
+
+  def mostRetweeted: Tweet = throw new ju.NoSuchElementException("Empty Set has no retweets")
+
+  def mostRetweetedAcc(max: Tweet): Tweet = max  
+
+  def descendingByRetweet: TweetList = Nil
 
   /**
    * The following methods are already implemented
@@ -119,9 +130,29 @@ class Empty extends TweetSet:
 
   def foreach(f: Tweet => Unit): Unit = ()
 
+  override def toString: String = "EMPTY"
+
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet:
 
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
+  def union(that: TweetSet): TweetSet = 
+    val newSet = that.incl(elem)
+    val leftSet = left.union(newSet)
+    right.union(leftSet)
+
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = 
+    val newSet = if p(elem) then acc.incl(elem) else acc
+    left.filterAcc(p, right.filterAcc(p, newSet))
+
+  def mostRetweetedAcc(acc: Tweet): Tweet =
+    val currMax = if elem.retweets > acc.retweets then elem else acc
+    val leftMax = left.mostRetweetedAcc(currMax)
+    right.mostRetweetedAcc(leftMax)
+
+  def mostRetweeted: Tweet = mostRetweetedAcc(elem)
+
+  def descendingByRetweet: TweetList = 
+    val most = mostRetweeted
+    Cons(most, remove(most).descendingByRetweet) 
 
 
   /**
@@ -156,6 +187,8 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet:
     left.foreach(f)
     right.foreach(f)
 
+  override def toString: String = s"$elem"
+
 trait TweetList:
   def head: Tweet
   def tail: TweetList
@@ -178,14 +211,16 @@ object GoogleVsApple:
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-  lazy val googleTweets: TweetSet = ???
-  lazy val appleTweets: TweetSet = ???
+  // first get all tweets then filter by predicate which checks if each tweet has atleast
+  // one element in its body of text in the List google/apple
+  lazy val googleTweets: TweetSet = allTweets.filter(tweet => google.exists(tweet.text.contains))
+  lazy val appleTweets: TweetSet = allTweets.filter(tweet => apple.exists(tweet.text.contains))
 
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
    */
-  lazy val trending: TweetList = ???
+  lazy val trending: TweetList = googleTweets.union(appleTweets).descendingByRetweet
 
 object Main extends App:
   // Print the trending tweets

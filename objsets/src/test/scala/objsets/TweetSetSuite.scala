@@ -7,9 +7,11 @@ class TweetSetSuite extends munit.FunSuite:
     val set3 = set2.incl(Tweet("b", "b body", 20))
     val c = Tweet("c", "c body", 7)
     val d = Tweet("d", "d body", 9)
+    val e = Tweet("d", "e body", 21)
     val set4c = set3.incl(c)
     val set4d = set3.incl(d)
     val set5 = set4c.incl(d)
+    val set6 = set5.incl(e)
 
   def asSet(tweets: TweetSet): Set[Tweet] =
     var res = Set[Tweet]()
@@ -47,6 +49,28 @@ class TweetSetSuite extends munit.FunSuite:
     new TestSets:
       assertEquals(size(set1.union(set5)), 4)
   }
+
+  test("mostReTweets: on empty set1") {
+    try
+      new TestSets:
+        set1.mostRetweeted
+        fail("No exception has been thrown")
+    catch
+      case e: NoSuchElementException => ()
+  }
+
+  test("mostReTweets: on set of size 1") {
+    new TestSets:
+      val res = set2.mostRetweeted
+      assertEquals(res.retweets, 20)
+  }
+
+  test("mostReTweets: on set of size  > 1") {
+    new TestSets:
+      val res = set6.mostRetweeted
+      assertEquals(res.retweets, 21)
+  }
+
 
   test("descending: set5") {
     new TestSets:
