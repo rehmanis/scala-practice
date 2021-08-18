@@ -33,3 +33,8 @@ jobs:
           cd objsets
           sbt test
           cd ../
+      - name: Run Week4 Exercise tests
+        run: |
+          cd patmat
+          sbt test
+          cd ../
