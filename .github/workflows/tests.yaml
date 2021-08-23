@@ -38,3 +38,8 @@ jobs:
           cd patmat
           sbt test
           cd ../
+      - name: Run Week6 Exercise tests
+        run: |
+          cd forcomp
+          sbt test
+          cd ../
