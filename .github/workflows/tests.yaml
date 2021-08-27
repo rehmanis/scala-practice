@@ -18,28 +18,33 @@ jobs:
           cd example
           sbt test
           cd ../
-      - name: Run Week1 Exercise tests
+      - name: Run Course1 Week1 Exercise tests
         run: |
           cd recfun
           sbt test
           cd ../
-      - name: Run Week2 Exercise tests
+      - name: Run Course1 Week2 Exercise tests
         run: |
           cd funsets
           sbt test
           cd ../
-      - name: Run Week3 Exercise tests
+      - name: Run Course1 Week3 Exercise tests
         run: |
           cd objsets
           sbt test
           cd ../
-      - name: Run Week4 Exercise tests
+      - name: Run Course1 Week4 Exercise tests
         run: |
           cd patmat
           sbt test
           cd ../
-      - name: Run Week6 Exercise tests
+      - name: Run Course1 Week6 Exercise tests
         run: |
           cd forcomp
+          sbt test
+          cd ../
+      - name: Run Course2 Week1 Exercise tests
+        run: |
+          cd quickcheck
           sbt test
           cd ../
