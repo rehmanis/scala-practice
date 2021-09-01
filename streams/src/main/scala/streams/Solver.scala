@@ -8,7 +8,7 @@ trait Solver extends GameDef:
   /**
    * Returns `true` if the block `b` is at the final position
    */
-  def done(b: Block): Boolean = ???
+  def done(b: Block): Boolean = b.isStanding && b.b1 == goal
 
   /**
    * This function takes two arguments: the current block `b` and
@@ -26,7 +26,10 @@ trait Solver extends GameDef:
    * It should only return valid neighbors, i.e. block positions
    * that are inside the terrain.
    */
-  def neighborsWithHistory(b: Block, history: List[Move]): LazyList[(Block, List[Move])] = ???
+  def neighborsWithHistory(b: Block, history: List[Move]): LazyList[(Block, List[Move])] = 
+    for 
+      (block, move) <- b.legalNeighbors.to(LazyList)
+    yield (block, move :: history)
 
   /**
    * This function returns the list of neighbors without the block
@@ -34,7 +37,12 @@ trait Solver extends GameDef:
    * make sure that we don't explore circular paths.
    */
   def newNeighborsOnly(neighbors: LazyList[(Block, List[Move])],
-                       explored: Set[Block]): LazyList[(Block, List[Move])] = ???
+                       explored: Set[Block]): LazyList[(Block, List[Move])] =
+    for
+      (block, movesList) <- neighbors
+      if !explored.contains(block)
+    yield (block, movesList)
+    
 
   /**
    * The function `from` returns the lazy list of all possible paths

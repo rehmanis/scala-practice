@@ -20,6 +20,8 @@ class BloxorzSuite extends munit.FunSuite:
           case Down => block.down
     }
 
+
+
   trait Level1 extends SolutionChecker:
       /* terrain for level 1*/
 
@@ -33,6 +35,37 @@ class BloxorzSuite extends munit.FunSuite:
 
     import Move.*
     val optsolution = List(Right, Right, Down, Right, Right, Right, Down)
+
+
+  test("find correct neighbors with history") {
+    new Level1:
+      import Move.*
+      assertEquals(
+        neighborsWithHistory(Block(Pos(1, 1), Pos(1, 1)), List(Left, Up)),
+        Set(
+          (Block(Pos(1, 2), Pos(1, 3)), List(Right, Left, Up)),
+          (Block(Pos(2, 1), Pos(3, 1)), List(Down, Left, Up))
+        ).to(LazyList)
+      )
+  }
+
+
+  test("find not explored neighbors with history") {
+    new Level1:
+      import Move.*
+      assertEquals(
+        newNeighborsOnly(
+          Set(
+            (Block(Pos(1, 2), Pos(1, 3)), List(Right, Left, Up)),
+            (Block(Pos(2, 1), Pos(3, 1)), List(Down, Left, Up))
+          ).to(LazyList),
+          Set(Block(Pos(1, 2),Pos(1, 3)), Block(Pos(1, 1),Pos(1, 1)))
+        ),
+        Set(
+          (Block(Pos(2, 1),Pos(3, 1)), List(Down, Left, Up))
+        ).to(LazyList)
+      )
+  }
 
 
   test("terrain function level 1 (10pts)") {
