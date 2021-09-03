@@ -39,15 +39,15 @@ trait Solver extends GameDef:
   def newNeighborsOnly(neighbors: LazyList[(Block, List[Move])],
                        explored: Set[Block]): LazyList[(Block, List[Move])] =
     for
-      (block, movesList) <- neighbors
+      (block, moves) <- neighbors
       if !explored.contains(block)
-    yield (block, movesList)
+    yield (block, moves)
     
 
   /**
    * The function `from` returns the lazy list of all possible paths
    * that can be followed, starting at the `head` of the `initial`
-   * lazy list.
+   * lazy list. 
    *
    * The blocks in the lazy list `initial` are sorted by ascending path
    * length: the block positions with the shortest paths (length of
@@ -68,18 +68,29 @@ trait Solver extends GameDef:
    * construct the correctly sorted lazy list.
    */
   def from(initial: LazyList[(Block, List[Move])],
-           explored: Set[Block]): LazyList[(Block, List[Move])] = ???
+           explored: Set[Block]): LazyList[(Block, List[Move])] = initial match
+      
+      case LazyList() => LazyList()
+      case (block, moves) #:: tail => 
+        val allNeighbors = neighborsWithHistory(block, moves)
+        val newExplored = explored + block
+        val newNeighbors = newNeighborsOnly(allNeighbors, newExplored)
+        newNeighbors #::: from(tail #::: newNeighbors, newExplored)
+
 
   /**
    * The lazy list of all paths that begin at the starting block.
    */
-  lazy val pathsFromStart: LazyList[(Block, List[Move])] = ???
+  lazy val pathsFromStart: LazyList[(Block, List[Move])] = 
+    val initial = List((startBlock, Nil)).to(LazyList)
+    from(initial, Set())
 
   /**
    * Returns a lazy list of all possible pairs of the goal block along
    * with the history how it was reached.
    */
-  lazy val pathsToGoal: LazyList[(Block, List[Move])] = ???
+  lazy val pathsToGoal: LazyList[(Block, List[Move])] = 
+    pathsFromStart.filter((b, _) => done(b))
 
   /**
    * The (or one of the) shortest sequence(s) of moves to reach the
@@ -89,4 +100,6 @@ trait Solver extends GameDef:
    * the first move that the player should perform from the starting
    * position.
    */
-  lazy val solution: List[Move] = ???
+  lazy val solution: List[Move] = pathsToGoal match
+    case LazyList() => List()
+    case (_, moves) #:: tail => moves.reverse
