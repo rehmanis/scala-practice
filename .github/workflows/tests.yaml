@@ -48,3 +48,8 @@ jobs:
           cd quickcheck
           sbt test
           cd ../
+      - name: Run Course2 Week2 Exercise tests
+        run: |
+          cd streams
+          sbt test
+          cd ../
