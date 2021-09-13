@@ -247,8 +247,9 @@ trait PersonCodecs {
 
   /** The corresponding decoder for `Person` */
   implicit lazy val personDecoder: Decoder[Person] =
-    ???
-
+    Decoder.field[String]("name")
+      .zip(Decoder.field[Int]("age"))
+      .transform[Person] { case (name, age) => Person(name, age) }       
 }
 
 case class Contacts(people: List[Person])
@@ -261,6 +262,13 @@ trait ContactsCodecs {
   // The JSON representation of a value of type `Contacts` should be
   // a JSON object with a single field named “people” containing an
   // array of values of type `Person` (reuse the `Person` codecs)
+  implicit lazy val contactEncoder: Encoder[Contacts] =
+    ObjectEncoder.field[List[Person]]("people")
+    .transform[Contacts](contact => contact.people)
+
+  implicit lazy val contactDecoder: Decoder[Contacts] =
+    Decoder.field[List[Person]]("people")
+      .transform[Contacts]( people => Contacts(people) )
 
 }
 
