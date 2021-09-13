@@ -53,3 +53,8 @@ jobs:
           cd streams
           sbt test
           cd ../
+      - name: Run Course2 Week3 Exercise tests
+        run: |
+          cd codecs
+          sbt test
+          cd ../
